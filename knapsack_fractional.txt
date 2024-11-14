@@ -1,0 +1,46 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct {
+    int weight;
+    int value;
+} Item;
+
+int compare(const void *a, const void *b) {
+    double r1 = (double)((Item *)a)->value / ((Item *)a)->weight;
+    double r2 = (double)((Item *)b)->value / ((Item *)b)->weight;
+    return r2 - r1 > 0 ? 1 : -1;
+}
+
+double fractionalKnapsack(Item items[], int n, int W) {
+    // Sort items based on value-to-weight ratio in descending order
+    qsort(items, n, sizeof(Item), compare);
+
+    double totalValue = 0.0;  // Total value accumulated in knapsack
+    int remainingWeight = W;  // Remaining weight capacity of knapsack
+
+    for (int i = 0; i < n; i++) {
+        if (items[i].weight <= remainingWeight) {
+            // Take the whole item if it fits
+            remainingWeight -= items[i].weight;
+            totalValue += items[i].value;
+        } else {
+            // Take fraction of the item to fill the knapsack
+            totalValue += items[i].value * ((double)remainingWeight / items[i].weight);
+            break;  // Knapsack is full
+        }
+    }
+
+    return totalValue;  // Return total value of items taken
+}
+
+int main() {
+    int W = 50;  // Maximum weight capacity of the knapsack
+    Item items[] = {{10, 60}, {20, 100}, {30, 120}};
+    int n = sizeof(items) / sizeof(items[0]);
+
+    double maxValue = fractionalKnapsack(items, n, W);
+    printf("Maximum value in the knapsack = %.2f\n", maxValue);
+
+    return 0;
+}
