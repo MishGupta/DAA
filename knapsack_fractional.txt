@@ -13,25 +13,20 @@ int compare(const void *a, const void *b) {
 }
 
 double fractionalKnapsack(Item items[], int n, int W) {
-    // Sort items based on value-to-weight ratio in descending order
-    qsort(items, n, sizeof(Item), compare);
-
-    double totalValue = 0.0;  // Total value accumulated in knapsack
-    int remainingWeight = W;  // Remaining weight capacity of knapsack
-
+    qsort(items, n, sizeof(Item), compare);  // Sort items by value-to-weight ratio
+    double totalValue = 0.0;
+    int remainingWeight = W;
     for (int i = 0; i < n; i++) {
         if (items[i].weight <= remainingWeight) {
-            // Take the whole item if it fits
             remainingWeight -= items[i].weight;
             totalValue += items[i].value;
         } else {
-            // Take fraction of the item to fill the knapsack
-            totalValue += items[i].value * ((double)remainingWeight / items[i].weight);
-            break;  // Knapsack is full
+            double fraction = (double)remainingWeight / items[i].weight;
+            totalValue += items[i].value * fraction;
+            break;
         }
     }
-
-    return totalValue;  // Return total value of items taken
+    return totalValue;
 }
 
 int main() {
