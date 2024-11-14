@@ -1,110 +1,33 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <iostream>
+#include <queue>
+#include <vector>
 
-// Min-Heap structure for the priority queue
-typedef struct MinHeap {
-    int *array;
-    int size;
-    int capacity;
-} MinHeap;
+using namespace std;
 
-// Function to create a min-heap with a given capacity
-MinHeap* createMinHeap(int capacity) {
-    MinHeap* minHeap = (MinHeap*)malloc(sizeof(MinHeap));
-    minHeap->size = 0;
-    minHeap->capacity = capacity;
-    minHeap->array = (int*)malloc(capacity * sizeof(int));
-    return minHeap;
-}
+int optimalMergeCost(vector<int>& files) {
 
-// Function to swap two integers
-void swap(int* a, int* b) {
-    int temp = *a;
-    *a = *b;
-    *b = temp;
-}
-
-// Function to heapify at index i
-void minHeapify(MinHeap* minHeap, int i) {
-    int smallest = i;
-    int left = 2 * i + 1;
-    int right = 2 * i + 2;
-
-    if (left < minHeap->size && minHeap->array[left] < minHeap->array[smallest])
-        smallest = left;
-
-    if (right < minHeap->size && minHeap->array[right] < minHeap->array[smallest])
-        smallest = right;
-
-    if (smallest != i) {
-        swap(&minHeap->array[i], &minHeap->array[smallest]);
-        minHeapify(minHeap, smallest);
+    priority_queue<int, vector<int>, greater<int>> minHeap;
+    for (int size : files) {
+        minHeap.push(size);
     }
-}
-
-// Function to insert a new element into the min-heap
-void insertMinHeap(MinHeap* minHeap, int value) {
-    if (minHeap->size == minHeap->capacity) {
-        printf("Heap overflow\n");
-        return;
-    }
-
-    // Insert the new element at the end
-    int i = minHeap->size++;
-    minHeap->array[i] = value;
-
-    // Fix the min-heap property if it's violated
-    while (i != 0 && minHeap->array[(i - 1) / 2] > minHeap->array[i]) {
-        swap(&minHeap->array[i], &minHeap->array[(i - 1) / 2]);
-        i = (i - 1) / 2;
-    }
-}
-
-// Function to extract the minimum element from the min-heap
-int extractMin(MinHeap* minHeap) {
-    if (minHeap->size <= 0)
-        return 0;
-    if (minHeap->size == 1) {
-        minHeap->size--;
-        return minHeap->array[0];
-    }
-
-    int root = minHeap->array[0];
-    minHeap->array[0] = minHeap->array[--minHeap->size];
-    minHeapify(minHeap, 0);
-
-    return root;
-}
-
-// Function to find the minimum cost of merging files
-int optimalMergePattern(int files[], int n) {
-    MinHeap* minHeap = createMinHeap(n);
-    for (int i = 0; i < n; i++) {
-        insertMinHeap(minHeap, files[i]);
-    }
-
     int totalCost = 0;
-    while (minHeap->size > 1) {
-        int firstMin = extractMin(minHeap);
-        int secondMin = extractMin(minHeap);
-
-        int cost = firstMin + secondMin;
-        totalCost += cost;
-
-        insertMinHeap(minHeap, cost);
+    while (minHeap.size() > 1) {
+        int file1 = minHeap.top();
+        minHeap.pop();
+        int file2 = minHeap.top();
+        minHeap.pop();
+        int mergeCost = file1 + file2;
+        totalCost += mergeCost;
+        minHeap.push(mergeCost);
     }
 
-    free(minHeap->array);
-    free(minHeap);
     return totalCost;
 }
 
 int main() {
-    int files[] = {20, 30, 10, 5};
-    int n = sizeof(files) / sizeof(files[0]);
-
-    int result = optimalMergePattern(files, n);
-    printf("Minimum cost to merge files = %d\n", result);
+    vector<int> files = {5, 10, 15, 20, 25};
+    int cost = optimalMergeCost(files);
+    cout << "Total cost of merging files: " << cost << endl;
 
     return 0;
 }
